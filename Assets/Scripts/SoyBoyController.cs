@@ -129,6 +129,9 @@ public class SoyBoyController : MonoBehaviour
         input.x = Input.GetAxis("Horizontal");
         input.y = Input.GetAxis("Jump");
 
+        animator.SetFloat("Speed", Mathf.Abs(input.x));
+
+
         // 2  
         if (input.x > 0f)
         {
@@ -141,12 +144,12 @@ public class SoyBoyController : MonoBehaviour
 
         if (input.y >= 1f)
         {
-            jumpDuration += Time.deltaTime;//As long as the jump button is held down, jumpDuration is counted up using the time the previous frame took to complete (Time.deltaTime).
+            jumpDuration += Time.deltaTime;
+            animator.SetBool("IsJumping", true);
         }
-
         else
         {
-            isJumping = false;//If jump is released, jumpDuration is set back to 0 for the next time it needs to be timed
+            isJumping = false; animator.SetBool("IsJumping", false);
             jumpDuration = 0f;
         }
 
@@ -156,6 +159,8 @@ public class SoyBoyController : MonoBehaviour
             {
                 isJumping = true;//If so, the isJumping boolean variable is set to true.
             }
+
+            animator.SetBool("IsOnWall", false);
         }
         if (jumpDuration > jumpDurationThreshold) input.y = 0f;//This checks for jumpDuration being longer than the jumpDurationThreshold (0.25 seconds)
     }
@@ -202,10 +207,20 @@ public class SoyBoyController : MonoBehaviour
         // 4  
         rb.velocity = new Vector2(xVelocity, yVelocity); //Velocity is reset on rb so it can stop Super Soy Boy from moving left or right when controls are in a neutral state. Otherwise, velocity is set to exactly what it’s currently at.
 
-        if (IsWallToLeftOrRight() && !PlayerIsOnGround() && input.y == 1)//This checks to see if there is a wall to the left or right of the player, that they are not on the ground, and that they are currently jumping.  
+        if (IsWallToLeftOrRight() && !PlayerIsOnGround() && input.y == 1)
         {
-            rb.velocity = new Vector2(-GetWallDirection() * speed * 0.75f, rb.velocity.y);//If this is the case, the character’s Rigidbody velocity is set to a new velocity, using the current Y velocity, but with a change to the X (horizontal) velocity.
+            rb.velocity = new Vector2(-GetWallDirection() * speed 
+                * 0.75f, rb.velocity.y);
+            animator.SetBool("IsOnWall", false);
+            animator.SetBool("IsJumping", true);
         }
+        else if (!IsWallToLeftOrRight())
+        {
+            animator.SetBool("IsOnWall", false);
+            animator.SetBool("IsJumping", true);
+        }
+
+        if (IsWallToLeftOrRight() && !PlayerIsOnGround()) { animator.SetBool("IsOnWall", true); }
 
         if (isJumping && jumpDuration < jumpDurationThreshold)//This gives Super Soy Boy’s Rigidbody a new velocity if the user has pressed the jump button for less than the jumpDurationThreshold.
         {
