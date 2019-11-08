@@ -47,6 +47,7 @@ public class Hazard : MonoBehaviour
 
             // 4  
             Destroy(coll.gameObject);//Lastly, destroy the colliding object (the player).
+            GameManager.instance.RestartLevel(1.25f);//This will call the GameManager instance’s RestartLevel() method, passing in a delay of 1.25 seconds.
         }
     }
 }
