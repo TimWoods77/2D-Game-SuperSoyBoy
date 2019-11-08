@@ -71,6 +71,8 @@
     <Compile Include="Assets\SampleScenes\Scripts\PlaceTargetWithMouse.cs" />
     <Compile Include="Assets\SampleScenes\Scripts\SlowMoButton.cs" />
     <Compile Include="Assets\Scripts\CameraLerpToTransform.cs" />
+    <Compile Include="Assets\Scripts\Hazard.cs" />
+    <Compile Include="Assets\Scripts\RotationScript.cs" />
     <Compile Include="Assets\Scripts\SoyBoyController.cs" />
     <None Include="Assets\SampleScenes\Shaders\Skybox-Procedural.shader" />
     <Reference Include="Unity.Timeline.Editor">
