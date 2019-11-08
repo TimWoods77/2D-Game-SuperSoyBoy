@@ -7,6 +7,10 @@ using UnityEngine;
 
 public class SoyBoyController : MonoBehaviour
 {
+    public AudioClip runClip;
+    public AudioClip jumpClip;
+    public AudioClip slideClip;
+    private AudioSource audioSource;
     public float jump = 14f;
     public float airAccel = 3f;//air control
     public float jumpDurationThreshold = 0.25f;
@@ -32,7 +36,18 @@ public class SoyBoyController : MonoBehaviour
 
         width = GetComponent<Collider2D>().bounds.extents.x + 0.1f;// grabs width of SoyBoy's sprites and adds 0.1f to them
         height = GetComponent<Collider2D>().bounds.extents.y + 0.2f;// grabs height of SoyBoy's sprites and adds 0.2f to them
+
+        audioSource = GetComponent<AudioSource>();
     }
+
+    void PlayAudioClip(AudioClip clip)//This checks that the audioSource and clip to be played are valid, 
+    {
+        if (audioSource != null && clip != null)
+        {
+            if (!audioSource.isPlaying) audioSource.PlayOneShot(clip);//ensures the Audio Source component is not already playing a clip before playing the new clip.
+        }
+    }
+
 
     // Start is called before the first frame update
     void Start()
@@ -70,13 +85,13 @@ public class SoyBoyController : MonoBehaviour
     public bool IsWallToLeftOrRight()
     {
         // 1
-        bool wallOnleft = Physics2D.Raycast(new Vector2(     
-            transform.position.x - width, transform.position.y),  
+        bool wallOnleft = Physics2D.Raycast(new Vector2(
+            transform.position.x - width, transform.position.y),
             -Vector2.right, rayCastLengthCheck);
-        bool wallOnRight = Physics2D.Raycast(new Vector2( 
+        bool wallOnRight = Physics2D.Raycast(new Vector2(
             transform.position.x + width, transform.position.y),
               Vector2.right, rayCastLengthCheck);
-        
+
         // 2  
         if (wallOnleft || wallOnRight)// if any of the raycast hits an object it will return true otherwise it'll return false
         {
@@ -153,78 +168,88 @@ public class SoyBoyController : MonoBehaviour
             jumpDuration = 0f;
         }
 
-        if (PlayerIsOnGround() && isJumping == false)//  calls the PlayerIsOnGround() method to determine if the player is touching the ground or not (true or false). It also checks if the player is not already jumping. 
+        if (PlayerIsOnGround() && !isJumping)
         {
-            if (input.y > 0f)// performs an inner check to see if there is any input for jumping from the controls (input.y > 0f). 
+            if (input.y > 0f)
             {
-                isJumping = true;//If so, the isJumping boolean variable is set to true.
+                isJumping = true; PlayAudioClip(jumpClip);
+            }
+            animator.SetBool("IsOnWall", false);
+            if (input.x < 0f || input.x > 0f)
+            {
+                PlayAudioClip(runClip);
+            }
+        }
+
+        void FixedUpdate()
+        {
+            // 1 
+            var acceleration = 0f;//This code sets acceleration to 0 to start with (a default, initial value). 
+            if (PlayerIsOnGround())// looks to see if the player is on the ground or not
+            {
+                acceleration = accel;
+            }
+            else
+            {
+                acceleration = airAccel;
             }
 
-            animator.SetBool("IsOnWall", false);
-        }
-        if (jumpDuration > jumpDurationThreshold) input.y = 0f;//This checks for jumpDuration being longer than the jumpDurationThreshold (0.25 seconds)
-    }
+            var xVelocity = 0f;//This is an extra check to ensure that xVelocity is only set to 0 if the player is on the ground and not using left or right controls.
 
-    void FixedUpdate()
-    {
-        // 1 
-        var acceleration = 0f;//This code sets acceleration to 0 to start with (a default, initial value). 
-        if (PlayerIsOnGround())// looks to see if the player is on the ground or not
-        {
-            acceleration = accel;
-        }
-        else
-        {
-            acceleration = airAccel;
-        }
+            // 2 
+            if (PlayerIsOnGround() && input.x == 0)// If horizontal axis controls are neutral
+            {
+                xVelocity = 0f;//then xVelocity is set to 0
+            }
+            else
+            {
+                xVelocity = rb.velocity.x;//otherwise xVelocity is set to the current x velocity of the rb component
+            }
 
-        var xVelocity = 0f;//This is an extra check to ensure that xVelocity is only set to 0 if the player is on the ground and not using left or right controls.
+            var yVelocity = 0f;//This ensures that the yVelocity value is set to the jump value of 14 when the character is jumping from the ground, or from a wall. 
+            if (PlayerIsTouchingGroundOrWall() && input.y == 1)//Otherwise, it’s set to the current velocity of the rigidbody.
+            {
+                yVelocity = jump;
+            }
+            else
+            {
+                yVelocity = rb.velocity.y;
+            }
 
-        // 2 
-        if (PlayerIsOnGround() && input.x == 0)// If horizontal axis controls are neutral
-        {
-            xVelocity = 0f;//then xVelocity is set to 0
-        }
-        else
-        {
-            xVelocity = rb.velocity.x;//otherwise xVelocity is set to the current x velocity of the rb component
-        }
+            // 3 
+            rb.AddForce(new Vector2(((input.x * speed) - rb.velocity.x)// Force is added to rb by calculating the current value of the horizontal axis controls multiplied by speed, which is in turn multiplied by acceleration.     
+                * acceleration, 0));
 
-        var yVelocity = 0f;//This ensures that the yVelocity value is set to the jump value of 14 when the character is jumping from the ground, or from a wall. 
-        if (PlayerIsTouchingGroundOrWall() && input.y == 1)//Otherwise, it’s set to the current velocity of the rigidbody.
-        {
-            yVelocity = jump;
-        }
-        else
-        {
-            yVelocity = rb.velocity.y;
-        }
+            // 4  
+            rb.velocity = new Vector2(xVelocity, yVelocity); //Velocity is reset on rb so it can stop Super Soy Boy from moving left or right when controls are in a neutral state. Otherwise, velocity is set to exactly what it’s currently at.
 
-        // 3 
-        rb.AddForce(new Vector2(((input.x * speed) - rb.velocity.x)// Force is added to rb by calculating the current value of the horizontal axis controls multiplied by speed, which is in turn multiplied by acceleration.     
-            * acceleration, 0));
+            if (IsWallToLeftOrRight() && !PlayerIsOnGround()
+                && input.y == 1)
+            {
+                rb.velocity = new Vector2(-GetWallDirection() * speed
+                    * 0.75f, rb.velocity.y);
+                animator.SetBool("IsOnWall", false);
+                animator.SetBool("IsJumping", true);
+                PlayAudioClip(jumpClip);
+            }
 
-        // 4  
-        rb.velocity = new Vector2(xVelocity, yVelocity); //Velocity is reset on rb so it can stop Super Soy Boy from moving left or right when controls are in a neutral state. Otherwise, velocity is set to exactly what it’s currently at.
+            else if (!IsWallToLeftOrRight())
+            {
+                animator.SetBool("IsOnWall", false);
+                animator.SetBool("IsJumping", true);
+            }
 
-        if (IsWallToLeftOrRight() && !PlayerIsOnGround() && input.y == 1)
-        {
-            rb.velocity = new Vector2(-GetWallDirection() * speed 
-                * 0.75f, rb.velocity.y);
-            animator.SetBool("IsOnWall", false);
-            animator.SetBool("IsJumping", true);
-        }
-        else if (!IsWallToLeftOrRight())
-        {
-            animator.SetBool("IsOnWall", false);
-            animator.SetBool("IsJumping", true);
-        }
+            if (IsWallToLeftOrRight() && !PlayerIsOnGround())
+            {
+                animator.SetBool("IsOnWall", true);
+                PlayAudioClip(slideClip);
+            }
 
-        if (IsWallToLeftOrRight() && !PlayerIsOnGround()) { animator.SetBool("IsOnWall", true); }
+            if (isJumping && jumpDuration < jumpDurationThreshold)//This gives Super Soy Boy’s Rigidbody a new velocity if the user has pressed the jump button for less than the jumpDurationThreshold.
+            {
+                rb.velocity = new Vector2(rb.velocity.x, jumpSpeed);// This equates to upward movement, forming a satisfying input-duration controlled jump! 
+            }
 
-        if (isJumping && jumpDuration < jumpDurationThreshold)//This gives Super Soy Boy’s Rigidbody a new velocity if the user has pressed the jump button for less than the jumpDurationThreshold.
-        {
-            rb.velocity = new Vector2(rb.velocity.x, jumpSpeed);// This equates to upward movement, forming a satisfying input-duration controlled jump! 
         }
     }
-}   
+}
