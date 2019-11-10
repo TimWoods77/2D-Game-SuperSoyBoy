@@ -76,6 +76,7 @@
     <Compile Include="Assets\Scripts\Hazard.cs" />
     <Compile Include="Assets\Scripts\RotationScript.cs" />
     <Compile Include="Assets\Scripts\SoyBoyController.cs" />
+    <Compile Include="Assets\Scripts\Timer.cs" />
     <None Include="Assets\SampleScenes\Shaders\Skybox-Procedural.shader" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>C:/Users/Tim/Documents/2D Game/2D-Game-SuperSoyBoy/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

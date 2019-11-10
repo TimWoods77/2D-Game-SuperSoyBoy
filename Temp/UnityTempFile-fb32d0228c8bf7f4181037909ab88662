@@ -305,4 +305,9 @@ Assets\SampleScenes\Scripts\ParticleSceneControls.cs
 Assets\SampleScenes\Scripts\PlaceTargetWithMouse.cs
 Assets\SampleScenes\Scripts\SlowMoButton.cs
 Assets\Scripts\CameraLerpToTransform.cs
+Assets\Scripts\GameManager.cs
+Assets\Scripts\Goal.cs
+Assets\Scripts\Hazard.cs
+Assets\Scripts\RotationScript.cs
 Assets\Scripts\SoyBoyController.cs
+Assets\Scripts\Timer.cs
