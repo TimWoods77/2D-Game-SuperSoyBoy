@@ -14,6 +14,7 @@ public class Timer : MonoBehaviour
 
     void Update()
     {
-        timerText.text = System.Math.Round((decimal)Time.timeSinceLevelLoad, 2).ToString();//the text will be changed to display the time since the level last reloaded, rounded to two decimal places.
+        timerText.text = System.Math.Round((decimal)Time.timeSinceLevelLoad, 
+            2).ToString();//the text will be changed to display the time since the level last reloaded, rounded to two decimal places.
     }
 }

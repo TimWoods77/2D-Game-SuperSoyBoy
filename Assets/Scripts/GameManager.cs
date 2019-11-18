@@ -8,17 +8,6 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    public void RestartLevel(float delay)// a way of calling the private coroutine method that actually reloads the Game scene.
-    {
-        StartCoroutine(RestartLevelDelay(delay));
-    }
-
-    private IEnumerator RestartLevelDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        SceneManager.LoadScene("Game");
-    }
-
     void Awake()
     {
         if (instance == null)
@@ -44,5 +33,16 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void RestartLevel(float delay)// a way of calling the private coroutine method that actually reloads the Game scene.
+    {
+        StartCoroutine(RestartLevelDelay(delay));
+    }
+
+    private IEnumerator RestartLevelDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SceneManager.LoadScene("Game");
     }
 }

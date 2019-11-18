@@ -33,21 +33,11 @@ public class SoyBoyController : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
-
         width = GetComponent<Collider2D>().bounds.extents.x + 0.1f;// grabs width of SoyBoy's sprites and adds 0.1f to them
         height = GetComponent<Collider2D>().bounds.extents.y + 0.2f;// grabs height of SoyBoy's sprites and adds 0.2f to them
 
         audioSource = GetComponent<AudioSource>();
     }
-
-    void PlayAudioClip(AudioClip clip)//This checks that the audioSource and clip to be played are valid, 
-    {
-        if (audioSource != null && clip != null)
-        {
-            if (!audioSource.isPlaying) audioSource.PlayOneShot(clip);//ensures the Audio Source component is not already playing a clip before playing the new clip.
-        }
-    }
-
 
     // Start is called before the first frame update
     void Start()
@@ -164,7 +154,8 @@ public class SoyBoyController : MonoBehaviour
         }
         else
         {
-            isJumping = false; animator.SetBool("IsJumping", false);
+            isJumping = false;
+            animator.SetBool("IsJumping", false);
             jumpDuration = 0f;
         }
 
@@ -172,7 +163,8 @@ public class SoyBoyController : MonoBehaviour
         {
             if (input.y > 0f)
             {
-                isJumping = true; PlayAudioClip(jumpClip);
+                isJumping = true;
+                PlayAudioClip(jumpClip);
             }
             animator.SetBool("IsOnWall", false);
             if (input.x < 0f || input.x > 0f)
@@ -180,6 +172,13 @@ public class SoyBoyController : MonoBehaviour
                 PlayAudioClip(runClip);
             }
         }
+
+            if (jumpDuration > jumpDurationThreshold)
+            {
+                input.y = 0f;
+                animator.SetBool("IsOnWall", false);
+            }
+    }
 
         void FixedUpdate()
         {
@@ -223,14 +222,11 @@ public class SoyBoyController : MonoBehaviour
             // 4  
             rb.velocity = new Vector2(xVelocity, yVelocity); //Velocity is reset on rb so it can stop Super Soy Boy from moving left or right when controls are in a neutral state. Otherwise, velocity is set to exactly what it’s currently at.
 
-            if (IsWallToLeftOrRight() && !PlayerIsOnGround()
-                && input.y == 1)
+            if (IsWallToLeftOrRight() && !PlayerIsOnGround() && input.y == 1)
             {
-                rb.velocity = new Vector2(-GetWallDirection() * speed
-                    * 0.75f, rb.velocity.y);
+                rb.velocity = new Vector2(-GetWallDirection() * speed * 0.75f, rb.velocity.y);
                 animator.SetBool("IsOnWall", false);
                 animator.SetBool("IsJumping", true);
-                PlayAudioClip(jumpClip);
             }
 
             else if (!IsWallToLeftOrRight())
@@ -239,6 +235,18 @@ public class SoyBoyController : MonoBehaviour
                 animator.SetBool("IsJumping", true);
             }
 
+            if (IsWallToLeftOrRight() && !PlayerIsOnGround() && input.y == 1)
+            {
+                rb.velocity = new Vector2(-GetWallDirection() * speed * 0.75f, rb.velocity.y);
+                animator.SetBool("IsOnWall", false);
+                animator.SetBool("IsJumping", true);
+                PlayAudioClip(jumpClip);
+            }
+            else if (!IsWallToLeftOrRight())
+            {
+                animator.SetBool("IsOnWall", false);
+                animator.SetBool("IsJumping", true);
+            }
             if (IsWallToLeftOrRight() && !PlayerIsOnGround())
             {
                 animator.SetBool("IsOnWall", true);
@@ -251,5 +259,12 @@ public class SoyBoyController : MonoBehaviour
             }
 
         }
-    }
+
+        void PlayAudioClip(AudioClip clip)
+        {
+            if (audioSource != null && clip != null)
+            {
+                if (!audioSource.isPlaying) audioSource.PlayOneShot(clip);
+            }
+        }
 }

@@ -10,15 +10,15 @@ public class Hazard : MonoBehaviour
     public Sprite hitSprite;
     private SpriteRenderer spriteRenderer;
 
+    void Awake()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         
-    }
-
-    void Awake()
-    {
-        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
