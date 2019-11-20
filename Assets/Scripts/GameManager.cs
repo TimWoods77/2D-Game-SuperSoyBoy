@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        SceneManager.sceneLoaded += OnSceneLoaded;// hooks up OnSceneLoaded() to a Unity SceneManager event named sceneLoaded that ﬁres when a scene loads.
     }
 
     // Update is called once per frame
@@ -96,6 +96,33 @@ public class GameManager : MonoBehaviour
         {
             times.Add(newTime);
             bFormatter.Serialize(file, times);
+        }
+    }
+
+    public void DisplayPreviousTimes()
+    {
+        // 1 
+        var times = LoadPreviousTimes();
+        var topThree = times.OrderBy(time => time.time).Take(3);
+
+        // 2  
+        var timesLabel = GameObject.Find("PreviousTimes")  
+            .GetComponent<Text>();
+
+        // 3  
+        timesLabel.text = "BEST TIMES \n";
+        foreach (var time in topThree)
+        {
+            timesLabel.text += time.entryDate.ToShortDateString() +   
+                ": " + time.time + "\n";
+        }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode loadsceneMode)
+    {
+        if (scene.name == "Game")
+        {
+            DisplayPreviousTimes();
         }
     }
 }
