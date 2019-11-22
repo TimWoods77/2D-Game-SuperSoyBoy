@@ -12,7 +12,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 public class GameManager : MonoBehaviour
 {
     public string playerName;
-
     public static GameManager instance;
 
     void Awake()
@@ -36,12 +35,6 @@ public class GameManager : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;// hooks up OnSceneLoaded() to a Unity SceneManager event named sceneLoaded that ﬁres when a scene loads.
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void RestartLevel(float delay)// a way of calling the private coroutine method that actually reloads the Game scene.
     {
         StartCoroutine(RestartLevelDelay(delay));
@@ -51,6 +44,12 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         SceneManager.LoadScene("Game");
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
     }
 
     public List<PlayerTimeEntry> LoadPreviousTimes()
@@ -92,6 +91,7 @@ public class GameManager : MonoBehaviour
         var bFormatter = new BinaryFormatter();
         var filePath = Application.persistentDataPath +
             "/" + playerName + "_times.dat";
+
         using (var file = File.Open(filePath, FileMode.Create))
         {
             times.Add(newTime);
