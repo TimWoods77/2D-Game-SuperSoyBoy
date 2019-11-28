@@ -67,7 +67,7 @@ public class LevelEditor : Editor
                     ldr.cameraSettings = new CameraSettingsRepresentation()
                     {
                         cameraTrackTarget = currentCamSettings.camTarget.name,
-                        cameraZDepth = currentCamSettings.cameraZDepth,
+                        //cameraZDepth = currentCamSettings.cameraZDepth,
                         minX = currentCamSettings.minX,
                         minY = currentCamSettings.minY,
                         maxX = currentCamSettings.maxX,
